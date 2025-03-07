@@ -29,20 +29,24 @@ resource "aws_subnet" "VPC_2_SUBNET" {
   cidr_block = "10.0.0.0/26"
 }
 
-resource "aws_internet_gateway" "CUSTOM_INTERNET_GATEWAY" {
-  
+resource "aws_internet_gateway" "VPC_1_INTERNET_GATEWAY" {
+  vpc_id = aws_vpc.VPC_1.id
+}
+
+resource "aws_internet_gateway" "VPC_2_INTERNET_GATEWAY" {
+  vpc_id = aws_vpc.VPC_2.id
 }
 
 resource "aws_route" "VPC_1_ROUTE_TABLE" {
   route_table_id = aws_vpc.VPC_1.main_route_table_id
   destination_cidr_block = "0.0.0.0/0"
-  gateway_id = aws_internet_gateway.CUSTOM_INTERNET_GATEWAY
+  gateway_id = aws_internet_gateway.VPC_1_INTERNET_GATEWAY.id
 }
 
 resource "aws_route" "VPC_2_ROUTE_TABLE" {
   route_table_id = aws_vpc.VPC_2.main_route_table_id
   destination_cidr_block = "0.0.0.0/0"
-  gateway_id = aws_internet_gateway.CUSTOM_INTERNET_GATEWAY
+  gateway_id = aws_internet_gateway.VPC_2_INTERNET_GATEWAY.id
 }
 
 resource "aws_vpc_peering_connection" "VPC_1_TO_VPC_2" {
@@ -54,12 +58,20 @@ resource "aws_instance" "VPC_1_INSTANCE" {
   ami = "ami-04c0ab8f1251f1600"
   instance_type = "t2.micro"
   key_name = "keyPairOregon"
+#   user_data = <<-EOF
+#   #!/bin/bash
+#   ping ${aws_instance.VPC_2_INSTANCE.public_ip}
+#   EOF
 }
 
 resource "aws_instance" "VPC_2_INSTANCE" {
   ami = "ami-04c0ab8f1251f1600"
   instance_type = "t2.micro"
   key_name = "keyPairOregon"
+#   user_data = <<-EOF
+#   #!/bin/bash
+#   ping ${aws_instance.VPC_1_INSTANCE.public_ip}
+#   EOF
 }
 
 
